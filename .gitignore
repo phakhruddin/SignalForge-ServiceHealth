@@ -1,0 +1,9 @@
+.DS_Store
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/config.auto.tfvars.json
+**/.terraform.tfstate.lock.info
+**/__pycache__/
+**/.pytest_cache/
+jobs/

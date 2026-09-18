@@ -1,0 +1,45 @@
+schema_version = "1.1"
+artifacts = [
+  { source = "/workspace/submission", destination = "submission", exclude = ["*/.terraform", "*/.terraform/**", "*/terraform.tfstate", "*/terraform.tfstate.*", "*/config.auto.tfvars.json"] },
+  { source = "/workspace/evidence", destination = "evidence" },
+]
+
+[task]
+name = "devcloud/signalforge-servicehealth"
+description = "Deploy a small asynchronous service and its cloud observability control plane."
+keywords = ["terraform", "ecs", "sqs", "cloudwatch", "logs", "metrics", "alarms", "slo"]
+authors = [{ name = "Deen", email = "phab019@expert.micro1.ai" }]
+
+[metadata]
+source = "devcloudbenchmark"
+environment_id = "devcloud"
+task_id = "0"
+instance_id = "observability_and_monitoring_signalforge_servicehealth"
+category = "observability_and_monitoring"
+difficulty = "hard"
+version = "0.1.0"
+
+[agent]
+timeout_sec = 43200.0
+user = "agent"
+
+[verifier]
+timeout_sec = 7200.0
+environment_mode = "separate"
+user = "root"
+
+[verifier.environment]
+build_timeout_sec = 3600.0
+cpus = 4
+memory_mb = 8192
+storage_mb = 30720
+gpus = 0
+allow_internet = true
+
+[environment]
+build_timeout_sec = 3600.0
+cpus = 4
+memory_mb = 8192
+storage_mb = 30720
+gpus = 0
+allow_internet = true

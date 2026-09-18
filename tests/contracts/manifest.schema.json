@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["resource_prefix", "api_url", "ecs_cluster", "api_service", "worker_service", "canary_service", "job_queue_url", "result_table", "dashboard", "incident_topic_arn", "incident_queue_url", "log_groups", "alarms"],
+  "properties": {
+    "resource_prefix": {"type": "string", "minLength": 3},
+    "api_url": {"type": "string", "pattern": "^http://"},
+    "ecs_cluster": {"type": "string", "minLength": 1},
+    "api_service": {"type": "string", "minLength": 1},
+    "worker_service": {"type": "string", "minLength": 1},
+    "canary_service": {"type": "string", "minLength": 1},
+    "job_queue_url": {"type": "string", "minLength": 1},
+    "result_table": {"type": "string", "minLength": 1},
+    "dashboard": {"type": "string", "minLength": 1},
+    "incident_topic_arn": {"type": "string", "minLength": 1},
+    "incident_queue_url": {"type": "string", "minLength": 1},
+    "log_groups": {
+      "type": "object", "additionalProperties": false,
+      "required": ["api", "worker", "canary"],
+      "properties": {"api": {"type": "string"}, "worker": {"type": "string"}, "canary": {"type": "string"}}
+    },
+    "alarms": {
+      "type": "object", "additionalProperties": false,
+      "required": ["api_errors", "api_latency", "backlog", "journey_failure", "telemetry_loss"],
+      "properties": {
+        "api_errors": {"type": "string"}, "api_latency": {"type": "string"},
+        "backlog": {"type": "string"}, "journey_failure": {"type": "string"},
+        "telemetry_loss": {"type": "string"}
+      }
+    }
+  }
+}
