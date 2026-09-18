@@ -19,6 +19,11 @@ local oracle run requires Docker and the `rv` runner; it builds the workload
 images in `runtime-setup`, then executes the reference solution and verifier.
 No real AWS account is contacted.
 
+Realm uploads only `tests/` as the separate verifier build context. The
+`tests/application/` and `tests/runtime.sh` files mirror the corresponding
+`environment/` sources so that verifier Compose builds and bind mounts stay
+inside that archive. Keep both copies synchronized when changing the workload.
+
 Validation: the reference solution passed the local 20-block verifier at
 **100/100**. `rv check --skip-judges` passed all 20 Realm checks and all 18
 static checks. `rv oracle` completed with one trial, zero exceptions, and a

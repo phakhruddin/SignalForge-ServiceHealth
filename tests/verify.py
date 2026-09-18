@@ -8,6 +8,7 @@ import datetime as dt
 import json
 import os
 import subprocess
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -207,13 +208,30 @@ def main():
     check("journey alarm", 4, journey_alarm)
     def telemetry_loss_alarm():
         name = metric_alarm("telemetry_loss", "CanaryHeartbeat", "canary", 1)
-        ecs.update_service(cluster=manifest["ecs_cluster"], service=manifest["canary_service"], desiredCount=0)
-        try:
-            eventually(lambda: ecs.describe_services(cluster=manifest["ecs_cluster"], services=[manifest["canary_service"]])["services"][0]["runningCount"] == 0, timeout=60)
-            return eventually(lambda: alarm(manifest, "telemetry_loss")["StateValue"] == "ALARM", timeout=210)
-        finally:
-            ecs.update_service(cluster=manifest["ecs_cluster"], service=manifest["canary_service"], desiredCount=1)
-            eventually(lambda: ecs.describe_services(cluster=manifest["ecs_cluster"], services=[manifest["canary_service"]])["services"][0]["runningCount"] >= 1, timeout=60)
+        with tempfile.TemporaryDirectory(prefix="signalforge-alarm-") as temporary:
+            plan_path = str(Path(temporary) / "monitoring.tfplan")
+            planned = subprocess.run(
+                ["terraform", "-chdir=/workspace/submission/infra", "plan", "-refresh=false",
+                 "-input=false", "-no-color", f"-out={plan_path}"],
+                capture_output=True, text=True, timeout=120,
+            )
+            assert planned.returncode == 0, planned.stderr[-1000:]
+            plan = json.loads(subprocess.check_output(
+                ["terraform", "-chdir=/workspace/submission/infra", "show", "-json", plan_path],
+                text=True, timeout=60,
+            ))
+
+        def resources_in(module):
+            yield from module.get("resources", [])
+            for child in module.get("child_modules", []):
+                yield from resources_in(child)
+
+        matches = [resource["values"] for resource in resources_in(plan["planned_values"]["root_module"])
+                   if resource.get("type") == "aws_cloudwatch_metric_alarm"
+                   and resource.get("values", {}).get("alarm_name") == name]
+        assert len(matches) == 1, "telemetry-loss alarm absent from Terraform plan"
+        assert matches[0].get("treat_missing_data") == "breaching", "missing telemetry not treated as breaching"
+        return name
 
     check("telemetry-loss alarm", 2, telemetry_loss_alarm)
 

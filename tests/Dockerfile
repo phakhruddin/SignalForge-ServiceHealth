@@ -16,5 +16,5 @@ RUN mkdir -p /opt/terraform-plugin-cache /tmp/provider-seed \
  && TF_PLUGIN_CACHE_DIR=/opt/terraform-plugin-cache TF_CLI_CONFIG_FILE=/dev/null terraform -chdir=/tmp/provider-seed init -backend=false -input=false \
  && rm -rf /tmp/provider-seed \
  && printf 'disable_checkpoint = true\nprovider_installation {\n  filesystem_mirror {\n    path = "/opt/terraform-plugin-cache"\n    include = ["registry.terraform.io/hashicorp/aws"]\n  }\n  direct {\n    exclude = ["registry.terraform.io/hashicorp/aws"]\n  }\n}\n' > /etc/terraformrc.offline
-COPY tests/ /tests/
+COPY . /tests/
 WORKDIR /tests

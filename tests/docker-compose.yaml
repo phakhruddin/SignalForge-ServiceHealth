@@ -1,8 +1,8 @@
 services:
   main:
     build:
-      context: ..
-      dockerfile: tests/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     command: ["sleep", "infinity"]
     depends_on:
       runtime-setup:
@@ -23,8 +23,8 @@ services:
     networks: [verifier-control]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ../environment/application:/application:ro
-      - ../environment/runtime.sh:/runtime.sh:ro
+      - ./application:/application:ro
+      - ./runtime.sh:/runtime.sh:ro
       - config:/config
     restart: "no"
   floci:

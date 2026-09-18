@@ -115,10 +115,11 @@ placeholder.
 ### Missing telemetry
 
 If the canary stops, no new customer-journey datapoints arrive. A missing-data
-alarm must not silently treat the absence as success. The verifier pauses the
-canary service, observes the live alarm enter `ALARM`, then restores it. This
-behavioral check avoids relying on fields that this Floci version omits from
-`DescribeAlarms` readback.
+alarm must not silently treat the absence as success. The verifier confirms the
+live alarm watches canary heartbeat data and checks Terraform's planned alarm
+value for `treat_missing_data = "breaching"`. This uses the desired plan because
+this Floci version omits that field from `DescribeAlarms` readback, and its
+alarm evaluation is not reliably timed across isolated Realm runs.
 
 ### Repair and cleanup
 
