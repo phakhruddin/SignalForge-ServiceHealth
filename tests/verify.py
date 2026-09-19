@@ -17,6 +17,8 @@ import boto3
 import jsonschema
 import requests
 
+from dashboard_rules import has_journey_ratio
+
 
 SUBMISSION = Path("/workspace/submission")
 CONFIG = json.loads(Path("/workspace/config/config.json").read_text())
@@ -267,7 +269,7 @@ def main():
         for name in ("RequestTotal", "RequestErrors", "RequestDurationMs", "CompletedJobs",
                      "JourneyGood", "JourneyTotal", "JourneyDurationMs", "QueueBacklog"):
             assert name in rendered, name
-        assert "good/total" in rendered or "good / total" in rendered
+        assert has_journey_ratio(body, NAMESPACE, PREFIX), "missing JourneyGood/JourneyTotal metric math"
         return len(body["widgets"])
 
     check("dashboard", 10, dashboard)
